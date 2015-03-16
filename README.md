@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Important note
 
 Pansenti, LLC is no longer in business and this repo is no longer actively supported. Please checkout www.richards-tech.com for the latest IMU-related software developments.
@@ -67,3 +68,6 @@ This is the initial version of the MPU9150Lib software.
 For more information, see www.pansenti.com,  pansenti.wordpress.com and twitter.com/Pansenti.
 
 Pansenti can be contacted by emailing to info@pansenti.com.
+=======
+# Arduino_MPU9150
+>>>>>>> cfc52719d685002e44e4fc3a21521d67f939c71d
