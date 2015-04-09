@@ -43,8 +43,12 @@ float2bytes f2b;
 // Debug flag
 boolean debug = false;
 
+const uint8_t messageLen = 40;
 // Frame format:       {ST, ADD,    quaternions,      accel xyz,   gyro xyz,   slider, thumb joy, trackball,        ...         SP }
-uint8_t transmit[36] = {60, 191, 0,0, 0,0, 0,0, 0,0, 0,0,0,0,0,0, 0,0,0,0,0,0,  0,0,    0,0,0,0,   0,0,0,0,   0x00, 0x00, 0x00, 90 };
+//uint8_t transmit[36] = {60, 191, 0,0, 0,0, 0,0, 0,0, 0,0,0,0,0,0, 0,0,0,0,0,0,  0,0,    0,0,0,0,   0,0,0,0,   0x00, 0x00, 0x00, 90 };
+
+// Frame format:               {ST, ADD, pose x,     y,        z    accel xyz,   gyro xyz,    thumb joy,   trackball,         ...         SP }
+uint8_t transmit[messageLen] = {60, 191, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0,   0,0,0,0,0,   0x00, 0x00, 0x00, 90 };
 
 
 
@@ -54,42 +58,42 @@ uint8_t transmit[36] = {60, 191, 0,0, 0,0, 0,0, 0,0, 0,0,0,0,0,0, 0,0,0,0,0,0,  
 // thumbJoy pinout (L to R):
 // Xout - 5V - Yout - gnd
 boolean thumbJoy = false;
-int thumbPinX = 0; // Analog read A0 pin
-int thumbPinY = 1; // Analog read A1 pin
-int thumbValX = 0;
-int thumbValY = 0;
-int thumbValXMin = 224;
-int thumbValXMax = 890;
-int thumbValYMin = 20;
-int thumbValYMax = 870;
+uint8_t thumbPinX = 0; // Analog read A0 pin
+uint8_t thumbPinY = 1; // Analog read A1 pin
+uint16_t thumbValX = 0;
+uint16_t thumbValY = 0;
+uint16_t thumbValXMin = 224;
+uint16_t thumbValXMax = 890;
+uint16_t thumbValYMin = 20;
+uint16_t thumbValYMax = 870;
 //float thumbValXF = 0.0;
 //float thumbValYF = 0.0;
-int thumbTransmitPos = 24; // First position of the thumb joystick values in the transmit array
-int thumbVals = 4; // Number of positions occupied by thumbJoy in the transmit array
+uint8_t thumbTransmitPos = 26; // First position of the thumb joystick values in the transmit array
+uint8_t thumbVals = 4; // Number of positions occupied by thumbJoy in the transmit array
 
 
 /* ****************************************************************
    ***                       TRACKBALL                          ***
    ****************************************************************/
 boolean trackball = false;
-int tbLedBluePin = 11; // Digital out 8
-int tbLedRedPin = 10; // Digital out 9
-int tbLedGreePinn = 9; // Digital out 10
-int tbLedWhitePin = 8; // Digital out 11
-int tbWheelUpPin = 3; // Digital in 3 (PCInt)
-int tbWheelDownPin = 4; // Digital in 4 (PCInt)
-int tbWheelLeftPin = 5; // Digital in 5 (PCInt)
-int tbWheelRightPin = 6; // Digital in 6 (PCInt)
-int tbButtonPin = 7; // Digital in 7 (PCInt)
+uint8_t tbLedBluePin = 11; // Digital out 8
+uint8_t tbLedRedPin = 10; // Digital out 9
+uint8_t tbLedGreePinn = 9; // Digital out 10
+uint8_t tbLedWhitePin = 8; // Digital out 11
+uint8_t tbWheelUpPin = 3; // Digital in 3 (PCInt)
+uint8_t tbWheelDownPin = 4; // Digital in 4 (PCInt)
+uint8_t tbWheelLeftPin = 5; // Digital in 5 (PCInt)
+uint8_t tbWheelRightPin = 6; // Digital in 6 (PCInt)
+uint8_t tbButtonPin = 7; // Digital in 7 (PCInt)
 
-int tbTransmitPos = 28; // First position of the trackball values in the transmit array
-int tbVals = 4; // Number of positions occupied by trackball in the transmit array
+uint8_t tbTransmitPos = 30; // First position of the trackball values in the transmit array
+uint8_t tbVals = 4; // Number of positions occupied by trackball in the transmit array
 
-volatile int tbWheelVertCntRaw = 120;
-volatile int tbWheelHorizCntRaw = 120;
-int tbWheelCntMax = 240;
-int tbWheelCntMin = 0;
-int tbButtonPressed = 0;
+volatile uint8_t tbWheelVertCntRaw = 120;
+volatile uint8_t tbWheelHorizCntRaw = 120;
+uint8_t tbWheelCntMax = 240;
+uint8_t tbWheelCntMin = 0;
+uint8_t tbButtonPressed = 0;
 
 
 /* ****************************************************************
@@ -210,12 +214,12 @@ void loop()
 //    transmit[16] = (uint8_t)(MPU.m_rawQuaternion[QUAT_Z] >> 8);
 //    transmit[17] = (uint8_t)(MPU.m_rawQuaternion[QUAT_Z]);
 
-    f2b.f = MPU.m_fusedEulerPose[VEC3_Y];
+    f2b.f = MPU.m_fusedEulerPose[VEC3_X];
     transmit[2] = f2b.b[3];
     transmit[3] = f2b.b[2];
     transmit[4] = f2b.b[1];
     transmit[5] = f2b.b[0];
-    f2b.f = MPU.m_fusedEulerPose[VEC3_X];
+    f2b.f = MPU.m_fusedEulerPose[VEC3_Y];
     transmit[6] = f2b.b[3];
     transmit[7] = f2b.b[2];
     transmit[8] = f2b.b[1];
