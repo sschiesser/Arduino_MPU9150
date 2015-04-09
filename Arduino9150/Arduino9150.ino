@@ -47,18 +47,6 @@ boolean debug = false;
 uint8_t transmit[36] = {60, 191, 0,0, 0,0, 0,0, 0,0, 0,0,0,0,0,0, 0,0,0,0,0,0,  0,0,    0,0,0,0,   0,0,0,0,   0x00, 0x00, 0x00, 90 };
 
 
-/* ****************************************************************
-   ***                        SLIDER                            ***
-   ****************************************************************/
-boolean slider = false;
-int sliderPin = 2; // Analog read A2 pin
-int sliderVal = 0;
-int sliderValMin = 0;
-int sliderValMax = 1023;
-//float sliderValF = 0.0;
-int sliderTransmitPos = 22; // First position of slider values in the transmit array
-int sliderVals = 2; // Number of positions occupied by slider in the transmit array
-
 
 /* ****************************************************************
    ***                    THUMB JOYSTICK                        ***
@@ -116,11 +104,11 @@ MPU9150Lib MPU;                                            // the MPU object
 #define  DEVICE_TO_USE    0
 
 //  MPU_UPDATE_RATE defines the rate (in Hz) at which the MPU updates the sensor data and DMP output
-#define MPU_UPDATE_RATE  (20)
+#define MPU_UPDATE_RATE  (10)
 
 //  MAG_UPDATE_RATE defines the rate (in Hz) at which the MPU updates the magnetometer data
 //  MAG_UPDATE_RATE should be less than or equal to the MPU_UPDATE_RATE
-#define MAG_UPDATE_RATE  (10)
+#define MAG_UPDATE_RATE  (5)
 
 //  MPU_MAG_MIX defines the influence that the magnetometer has on the yaw output.
 //  The magnetometer itself is quite noisy so some mixing with the gyro yaw can help
@@ -134,7 +122,7 @@ MPU9150Lib MPU;                                            // the MPU object
 #define MPU_LPF_RATE   40
 
 //  SERIAL_PORT_SPEED defines the speed to use for the debug serial port
-#define  SERIAL_PORT_SPEED  115200
+#define  SERIAL_PORT_SPEED  57600
 
 
 // ================================================================
@@ -147,21 +135,13 @@ void setup()
   Serial.print("Arduino9150 starting using device "); Serial.println(DEVICE_TO_USE);
   Wire.begin();
   
-  // Slider setuo
-  if(slider) {
-    if(debug) Serial.println("Slider enabled!");
-  }
-  else {
-    for(int i = 0; i < sliderVals; i++) {
-      transmit[sliderTransmitPos + i] = 100 + i;
-    }
-  }
   
   // Thumb joystick setup
   if(thumbJoy) {
     if(debug) Serial.println("Thumb joystick enabled!");
   }
   else {
+    if(debug) Serial.println("No thumb joystick");
     for(int i = 0; i < thumbVals; i++) {
       transmit[thumbTransmitPos + i] = 120 + i;
     }
@@ -183,6 +163,7 @@ void setup()
 //    attachPinChangeInterrupt(tbWheelRightPin, tbWheelRightInt, RISING);
   }
   else {
+    if(debug) Serial.println("No trackball");
     for(int i = 0; i < tbVals; i++) {
       transmit[tbTransmitPos + i] = 140 + i;
     }
@@ -211,6 +192,7 @@ void loop()
 //    MPU.printVector(MPU.m_calMag);                         // print the calibrated mag data
 //    MPU.printAngles(MPU.m_fusedEulerPose);                 // print the output of the data fusion
 //    Serial.println();
+
 //    transmit[2] = (uint8_t)(MPU.m_rawQuaternion[QUAT_W]>> 24);
 //    transmit[3] = (uint8_t)(MPU.m_rawQuaternion[QUAT_W] >> 16);
 //    transmit[4] = (uint8_t)(MPU.m_rawQuaternion[QUAT_W] >> 8);
@@ -227,6 +209,7 @@ void loop()
 //    transmit[15] = (uint8_t)(MPU.m_rawQuaternion[QUAT_Z] >> 16);
 //    transmit[16] = (uint8_t)(MPU.m_rawQuaternion[QUAT_Z] >> 8);
 //    transmit[17] = (uint8_t)(MPU.m_rawQuaternion[QUAT_Z]);
+
     f2b.f = MPU.m_fusedEulerPose[VEC3_Y];
     transmit[2] = f2b.b[3];
     transmit[3] = f2b.b[2];
@@ -242,6 +225,15 @@ void loop()
     transmit[11] = f2b.b[2];
     transmit[12] = f2b.b[1];
     transmit[13] = f2b.b[0];
-    Serial.write(transmit, 36);
+
+    if(debug) {
+      Serial.print("transmit: ");
+      for(int i = 0; i < 36; i++) {
+        Serial.print(transmit[i]); Serial.print(" ");
+      }
+      Serial.print("\n");
+    } else {
+      Serial.write(transmit, 36);
+    }
   }
 }
